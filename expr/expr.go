@@ -10,44 +10,43 @@ func Parser() parseg.Parser[Expr] {
 	var factor parseg.ParserFunc[Expr]
 
 	// term :: factor [ ('*'|'/') factor ]*
-	factor_ := parseg.Parser[Expr](&factor)
 	term := parseg.Map(
 		parseg.Cons(
-			parseg.Map(factor_, exprUnit(Mul)),
+			parseg.Map[Expr](&factor, makeUnit(Mul)),
 			parseg.Many(
 				parseg.OneOf(
 					parseg.Next(
 						parseg.Rune('*'),
-						parseg.Map(factor_, exprUnit(Mul)),
+						parseg.Map[Expr](&factor, makeUnit(Mul)),
 					),
 					parseg.Next(
 						parseg.Rune('/'),
-						parseg.Map(factor_, exprUnit(Div)),
+						parseg.Map[Expr](&factor, makeUnit(Div)),
 					),
 				),
 			),
 		),
-		foldTermTree,
+		intoTermExpr,
 	)
 
 	// expr :: term [ ('+'|'-') term ]*
 	expr := parseg.Map(
 		parseg.Cons(
-			parseg.Map(term, exprUnit(Add)),
+			parseg.Map(term, makeUnit(Add)),
 			parseg.Many(
 				parseg.OneOf(
 					parseg.Next(
 						parseg.Rune('+'),
-						parseg.Map(term, exprUnit(Add)),
+						parseg.Map(term, makeUnit(Add)),
 					),
 					parseg.Next(
 						parseg.Rune('-'),
-						parseg.Map(term, exprUnit(Sub)),
+						parseg.Map(term, makeUnit(Sub)),
 					),
 				),
 			),
 		),
-		foldExprTree,
+		intoExprTree,
 	)
 
 	number := parseg.Map(parseg.Natural(), func(i int) Expr { return constant(i) })
@@ -94,13 +93,13 @@ func newUnit(op Op, operand Expr) unit {
 	}
 }
 
-func exprUnit(op Op) func(Expr) unit {
+func makeUnit(op Op) func(Expr) unit {
 	return func(x Expr) unit {
 		return newUnit(op, x)
 	}
 }
 
-func foldExprTree(xs []unit) Expr {
+func intoExprTree(xs []unit) Expr {
 	return foldl(
 		func(acc Expr, x unit) Expr {
 			return &binaryOp{
@@ -114,7 +113,7 @@ func foldExprTree(xs []unit) Expr {
 	)
 }
 
-func foldTermTree(xs []unit) Expr {
+func intoTermExpr(xs []unit) Expr {
 	return foldl(
 		func(acc Expr, x unit) Expr {
 			return &binaryOp{
