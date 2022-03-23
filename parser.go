@@ -9,7 +9,7 @@ import (
 type Parser[T any] interface {
 	Parse(stream.Stream) (*T, int, error)
 	TryParser() Parser[T]
-	Or(g Parser[T]) Parser[T]
+	Func() ParserFunc[T]
 }
 
 var (
@@ -27,8 +27,14 @@ func (f ParserFunc[T]) TryParser() Parser[T] {
 	return TryParser[T](f)
 }
 
-func (f ParserFunc[T]) Or(g Parser[T]) Parser[T] {
-	return Or[T](f, g)
+func (f ParserFunc[T]) Func() ParserFunc[T] {
+	return f
+}
+
+func Func[T any](p Parser[T]) ParserFunc[T] {
+	return func(r stream.Stream) (*T, int, error) {
+		return p.Parse(r)
+	}
 }
 
 func Lazy[T any](t *T) T {
@@ -100,24 +106,6 @@ func TryParser[T any](p Parser[T]) Parser[T] {
 		}
 		return parsed, n, nil
 	})
-}
-
-func Or[T any](a, b Parser[T]) ParserFunc[T] {
-	return func(r stream.Stream) (*T, int, error) {
-		x, n, err := a.Parse(r)
-		if isError(err) {
-			return nil, n, err
-		}
-		if x != nil {
-			return x, n, nil
-		}
-		y, m, err := b.Parse(r)
-		m += n
-		if isError(err) {
-			return nil, n, err
-		}
-		return y, n, err
-	}
 }
 
 func OneOf[T any](ps ...Parser[T]) Parser[T] {

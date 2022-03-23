@@ -81,35 +81,6 @@ func TestSequenceOf(t *testing.T) {
 	}
 }
 
-func TestOr(t *testing.T) {
-	heavenOrHell := Or(
-		String("heaven"),
-		String("hell"),
-	)
-	cases := map[string]struct {
-		input  string
-		expect *string
-		rest   string
-	}{
-		"Or OK left":  {"heaven", Ptr("heaven"), ""},
-		"Or OK right": {"hell", Ptr("hell"), ""},
-		"Or NG":       {"earth", nil, "earth"},
-	}
-
-	for title, c := range cases {
-		t.Run(title, func(t *testing.T) {
-			r := bytes.NewReader([]byte(c.input))
-			actual, _, err := heavenOrHell.Parse(r)
-			assert.NoError(t, err)
-			assert.Equal(t, c.expect, actual)
-
-			rest, err := io.ReadAll(r)
-			assert.NoError(t, err)
-			assert.Equal(t, c.rest, string(rest))
-		})
-	}
-}
-
 func TestOneOf(t *testing.T) {
 	op := OneOf(
 		Rune('+'),

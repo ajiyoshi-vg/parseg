@@ -51,10 +51,10 @@ func Parser() parseg.Parser[Expr] {
 
 	number := parseg.Map(parseg.Natural(), func(i int) Expr { return constant(i) })
 	// factor :: number | '(' expr ')'
-	factor = parseg.Or(
+	factor = parseg.OneOf(
 		number,
 		parseg.Center(parseg.Rune('('), expr, parseg.Rune(')')),
-	)
+	).Func()
 	return expr
 }
 
