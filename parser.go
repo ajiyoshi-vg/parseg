@@ -198,7 +198,7 @@ func Prev[T, S any](a Parser[T], b Parser[S]) Parser[T] {
 			return nil, n, err
 		}
 		if ret == nil {
-			return nil, n, err
+			return nil, n, nil
 		}
 		x, m, err := b.Parse(r)
 		n += m
