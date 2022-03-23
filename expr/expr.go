@@ -15,7 +15,7 @@ func Parser() parseg.Parser[Expr] {
 		parseg.Cons(
 			parseg.Map(factor_, exprUnit(Mul)),
 			parseg.Many(
-				parseg.Parser[unit](parseg.Or(
+				parseg.OneOf(
 					parseg.Next(
 						parseg.Rune('*'),
 						parseg.Map(factor_, exprUnit(Mul)),
@@ -24,7 +24,7 @@ func Parser() parseg.Parser[Expr] {
 						parseg.Rune('/'),
 						parseg.Map(factor_, exprUnit(Div)),
 					),
-				)),
+				),
 			),
 		),
 		foldTermTree,
@@ -35,7 +35,7 @@ func Parser() parseg.Parser[Expr] {
 		parseg.Cons(
 			parseg.Map(term, exprUnit(Add)),
 			parseg.Many(
-				parseg.Parser[unit](parseg.Or(
+				parseg.OneOf(
 					parseg.Next(
 						parseg.Rune('+'),
 						parseg.Map(term, exprUnit(Add)),
@@ -44,7 +44,7 @@ func Parser() parseg.Parser[Expr] {
 						parseg.Rune('-'),
 						parseg.Map(term, exprUnit(Sub)),
 					),
-				)),
+				),
 			),
 		),
 		foldExprTree,
