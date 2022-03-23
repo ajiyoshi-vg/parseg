@@ -54,7 +54,7 @@ func Parser() parseg.Parser[Expr] {
 	factor = parseg.OneOf(
 		number,
 		parseg.Center(parseg.Rune('('), expr, parseg.Rune(')')),
-	).Func()
+	).IntoFunc()
 	return expr
 }
 

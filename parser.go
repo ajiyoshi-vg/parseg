@@ -9,7 +9,7 @@ import (
 type Parser[T any] interface {
 	Parse(stream.Stream) (*T, int, error)
 	TryParser() Parser[T]
-	Func() ParserFunc[T]
+	IntoFunc() ParserFunc[T]
 }
 
 var (
@@ -27,11 +27,15 @@ func (f ParserFunc[T]) TryParser() Parser[T] {
 	return TryParser[T](f)
 }
 
-func (f ParserFunc[T]) Func() ParserFunc[T] {
+func (f ParserFunc[T]) IntoFunc() ParserFunc[T] {
 	return f
 }
 
-func Func[T any](p Parser[T]) ParserFunc[T] {
+func (f ParserFunc[T]) ID() Parser[T] {
+	return f
+}
+
+func IntoFunc[T any](p Parser[T]) ParserFunc[T] {
 	return func(r stream.Stream) (*T, int, error) {
 		return p.Parse(r)
 	}
