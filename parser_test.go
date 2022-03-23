@@ -156,11 +156,23 @@ func TestNextPrev(t *testing.T) {
 			expect: Ptr(123),
 			rest:   "*456",
 		},
+		"next NG": {
+			input:  "-abc*456",
+			parser: Next(Rune('-'), Natural()),
+			expect: nil,
+			rest:   "-abc*456",
+		},
 		"prev": {
 			input:  "123;",
 			parser: Prev(Natural(), String(";")),
 			expect: Ptr(123),
 			rest:   "",
+		},
+		"prev NG": {
+			input:  "123.",
+			parser: Prev(Natural(), String(";")),
+			expect: nil,
+			rest:   "123.",
 		},
 	}
 

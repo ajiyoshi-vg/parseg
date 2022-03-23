@@ -209,7 +209,7 @@ func Prev[T, S any](a Parser[T], b Parser[S]) Parser[T] {
 			return nil, n, nil
 		}
 		return ret, n, nil
-	})
+	}).TryParser()
 }
 
 func Center[A, B, C any](a Parser[A], b Parser[B], c Parser[C]) Parser[B] {
