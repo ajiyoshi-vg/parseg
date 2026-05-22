@@ -1,0 +1,6 @@
+[tools]
+go = "latest"
+perl = "5.28"
+protobuf-dev = "3.21.7"
+"github:peco/peco" = "latest"
+ghq = "latest"
