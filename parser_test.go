@@ -19,7 +19,7 @@ func TestTryParser(t *testing.T) {
 		"Rune": {
 			input:  "abc",
 			parser: Rune('a'),
-			expect: Ptr('a'),
+			expect: new('a'),
 			rest:   "bc",
 			nRead:  1,
 		},
@@ -53,7 +53,7 @@ func TestSequenceOf(t *testing.T) {
 				Rune('a'),
 				Rune('b'),
 			},
-			expect: Ptr([]rune{'a', 'b'}),
+			expect: new([]rune{'a', 'b'}),
 			rest:   "c",
 		},
 		"SequenceOf fail": {
@@ -93,10 +93,10 @@ func TestOneOf(t *testing.T) {
 		expect *rune
 		rest   string
 	}{
-		"OneOf OK+": {"+123", Ptr('+'), "123"},
-		"OneOf OK-": {"-123", Ptr('-'), "123"},
-		"OneOf OK*": {"*123", Ptr('*'), "123"},
-		"OneOf OK/": {"/123", Ptr('/'), "123"},
+		"OneOf OK+": {"+123", new('+'), "123"},
+		"OneOf OK-": {"-123", new('-'), "123"},
+		"OneOf OK*": {"*123", new('*'), "123"},
+		"OneOf OK/": {"/123", new('/'), "123"},
 		"OneOf NG":  {"(123)", nil, "(123)"},
 	}
 
@@ -124,7 +124,7 @@ func TestNextPrev(t *testing.T) {
 		"next": {
 			input:  "-123*456",
 			parser: Next(Rune('-'), Natural()),
-			expect: Ptr(123),
+			expect: new(123),
 			rest:   "*456",
 		},
 		"next NG": {
@@ -136,7 +136,7 @@ func TestNextPrev(t *testing.T) {
 		"prev": {
 			input:  "123;",
 			parser: Prev(Natural(), String(";")),
-			expect: Ptr(123),
+			expect: new(123),
 			rest:   "",
 		},
 		"prev NG": {

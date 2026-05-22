@@ -18,13 +18,13 @@ func TestRune(t *testing.T) {
 		"AnyRune": {
 			input:  "abc",
 			parser: AnyRune(),
-			expect: Ptr('a'),
+			expect: new('a'),
 			rest:   "bc",
 		},
 		"Rune ok": {
 			input:  "abc",
 			parser: Rune('a'),
-			expect: Ptr('a'),
+			expect: new('a'),
 			rest:   "bc",
 		},
 		"Rune ng": {
@@ -36,7 +36,7 @@ func TestRune(t *testing.T) {
 		"Digit ok": {
 			input:  "1bc",
 			parser: Digit(),
-			expect: Ptr('1'),
+			expect: new('1'),
 			rest:   "bc",
 		},
 		"Digit ng": {
