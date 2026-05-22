@@ -4,3 +4,6 @@
 # build output
 *.exe
 *.out
+
+# local toolchain config
+mise.toml
