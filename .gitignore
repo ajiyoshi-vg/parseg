@@ -1,0 +1,9 @@
+# test binaries
+*.test
+
+# build output
+*.exe
+*.out
+
+# local toolchain config
+mise.toml

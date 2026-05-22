@@ -16,12 +16,12 @@ func TestNumber(t *testing.T) {
 	}{
 		"Number1": {
 			input:  "123abc",
-			expect: Ptr("123"),
+			expect: new("123"),
 			rest:   "abc",
 		},
 		"Number2": {
 			input:  "1",
-			expect: Ptr("1"),
+			expect: new("1"),
 			rest:   "",
 		},
 		"Number fail": {

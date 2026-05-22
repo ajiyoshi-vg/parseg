@@ -54,7 +54,7 @@ func Map[T, S any](p Parser[T], f func(T) S) Parser[S] {
 		if x == nil {
 			return nil, n, nil
 		}
-		return Ptr(f(*x)), n, nil
+		return new(f(*x)), n, nil
 	})
 }
 
@@ -71,7 +71,7 @@ func Apply[T, S any](p Parser[T], f func(T) (S, error)) Parser[S] {
 		if isError(err) {
 			return nil, n, err
 		}
-		return Ptr(ret), n, nil
+		return new(ret), n, nil
 	})
 }
 
@@ -137,9 +137,9 @@ func Cons[T any](car Parser[T], cdr Parser[[]T]) Parser[[]T] {
 		y, m, err := cdr.Parse(r)
 		n += m
 		if isError(err) || y == nil {
-			return Ptr(ret), n, err
+			return new(ret), n, err
 		}
-		return Ptr(append(ret, *y...)), n, nil
+		return new(append(ret, *y...)), n, nil
 	})
 }
 
@@ -162,7 +162,24 @@ func Many[T any](p Parser[T]) Parser[[]T] {
 }
 
 func Many1[T any](p Parser[T]) Parser[[]T] {
-	return Cons(p, Many(p))
+	return ParserFunc[[]T](func(r stream.Stream) (*[]T, int, error) {
+		x, n, err := p.Parse(r)
+		if isError(err) || x == nil {
+			return nil, n, err
+		}
+		ret := []T{*x}
+		for {
+			y, m, err := p.Parse(r)
+			n += m
+			if isError(err) {
+				return nil, n, err
+			}
+			if y == nil {
+				return &ret, n, nil
+			}
+			ret = append(ret, *y)
+		}
+	})
 }
 
 func Next[T, S any](a Parser[T], b Parser[S]) Parser[S] {
@@ -208,8 +225,9 @@ func Center[A, B, C any](a Parser[A], b Parser[B], c Parser[C]) Parser[B] {
 	return Prev(Next(a, b), c).TryParser()
 }
 
+//go:fix inline
 func Ptr[T any](x T) *T {
-	return &x
+	return new(x)
 }
 
 func isError(err error) bool {
