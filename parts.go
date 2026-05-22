@@ -1,7 +1,9 @@
 package parseg
 
 import (
-	"strconv"
+	"unicode"
+
+	"github.com/ajiyoshi-vg/parseg/stream"
 )
 
 func IntoString(p Parser[[]rune]) Parser[string] {
@@ -17,13 +19,45 @@ func Number() Parser[string] {
 }
 
 func Natural() Parser[int] {
-	return Apply(Number(), strconv.Atoi)
+	return ParserFunc[int](func(r stream.Stream) (*int, int, error) {
+		ch, n, err := r.ReadRune()
+		if err != nil || !unicode.IsDigit(ch) {
+			if n > 0 {
+				_ = r.UnreadRune()
+			}
+			return nil, 0, err
+		}
+		val := int(ch - '0')
+		total := n
+		for {
+			ch, n, err = r.ReadRune()
+			if err != nil || !unicode.IsDigit(ch) {
+				if n > 0 {
+					_ = r.UnreadRune()
+				}
+				break
+			}
+			val = val*10 + int(ch-'0')
+			total += n
+		}
+		return new(val), total, nil
+	})
 }
 
 func String(expect string) Parser[string] {
-	ps := make([]Parser[rune], 0, len(expect))
-	for _, r := range expect {
-		ps = append(ps, Rune(r))
-	}
-	return IntoString(SequenceOf(ps))
+	runes := []rune(expect)
+	return ParserFunc[string](func(r stream.Stream) (*string, int, error) {
+		total := 0
+		for _, want := range runes {
+			ch, n, err := r.ReadRune()
+			total += n
+			if err != nil {
+				return nil, total, err
+			}
+			if ch != want {
+				return nil, total, nil
+			}
+		}
+		return new(expect), total, nil
+	}).TryParser()
 }

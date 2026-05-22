@@ -162,7 +162,24 @@ func Many[T any](p Parser[T]) Parser[[]T] {
 }
 
 func Many1[T any](p Parser[T]) Parser[[]T] {
-	return Cons(p, Many(p))
+	return ParserFunc[[]T](func(r stream.Stream) (*[]T, int, error) {
+		x, n, err := p.Parse(r)
+		if isError(err) || x == nil {
+			return nil, n, err
+		}
+		ret := []T{*x}
+		for {
+			y, m, err := p.Parse(r)
+			n += m
+			if isError(err) {
+				return nil, n, err
+			}
+			if y == nil {
+				return &ret, n, nil
+			}
+			ret = append(ret, *y)
+		}
+	})
 }
 
 func Next[T, S any](a Parser[T], b Parser[S]) Parser[S] {
