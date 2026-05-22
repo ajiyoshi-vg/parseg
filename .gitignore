@@ -1,0 +1,6 @@
+# test binaries
+*.test
+
+# build output
+*.exe
+*.out
